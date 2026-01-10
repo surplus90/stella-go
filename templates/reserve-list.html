@@ -1,16 +1,18 @@
 {{define "content"}}
-<div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
-    <div>
+<div class="flex flex-col md:flex-row justify-between items-center md:items-end mb-8 gap-4">
+    <div class="text-center md:text-left">
         <h2 class="text-3xl text-gold drop-shadow-[0_2px_10px_rgba(251,191,36,0.3)]">전체 예약 현황</h2>
         <p class="text-slate-400 text-sm mt-1">운명의 수레바퀴가 기록된 명부입니다.</p>
     </div>
+</div>
+<div class="flex flex-col justify-between items-end mb-8 gap-4">
     <a href="/reserve" class="group relative px-6 py-2.5 overflow-hidden rounded-full bg-slate-800 text-sm font-bold tracking-tighter transition-all">
         <span class="absolute inset-0 bg-gradient-to-r from-amber-500 to-yellow-400 opacity-80 group-hover:opacity-100 transition-opacity"></span>
         <span class="relative text-slate-900">+ 새 예약 등록</span>
     </a>
 </div>
 
-<div class="glass-card overflow-hidden shadow-2xl border-white/5">
+<!-- <div class="glass-card overflow-hidden shadow-2xl border-white/5">
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
@@ -82,7 +84,92 @@
             </tbody>
         </table>
     </div>
+</div> -->
+
+<div class="glass-card overflow-hidden shadow-2xl border-white/5">
+    <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left border-collapse min-w-[650px]">
+            <thead>
+                <tr class="bg-white/5 text-amber-200/70 uppercase text-[12px] tracking-[0.2em] font-bold">
+                    <th class="px-4 py-5">상담자</th>
+                    <th class="px-3 py-5">상담 일시</th>
+                    <th class="px-4 py-5">타로 설정</th>
+                    <th class="px-4 py-5">상태</th>
+                    <th class="px-3 py-5">관리</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+                {{range .Reservations}}
+                <tr class="hover:bg-white/5 transition-all group">
+                    <td class="px-4 py-6">
+                        <div class="flex items-center gap-2">
+                            <a href="/reserve-detail/{{.Idx}}" class="text-slate-100 group-hover:text-amber-300 font-semibold transition-colors whitespace-nowrap">
+                                ✨ {{.UserName}}
+                            </a>
+                        </div>
+                    </td>
+                    
+                    <td class="px-3 py-6">
+                        <div class="text-sm text-slate-300 whitespace-nowrap">{{.ReservationDate}}</div>
+                    </td>
+                    
+                    <td class="px-4 py-6">
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="px-2 py-0.5 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded text-[11px] font-bold uppercase tracking-wider whitespace-nowrap">
+                                {{.DeckName}}
+                            </span>
+                            <span class="px-2 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded text-[11px] font-bold tracking-wider whitespace-nowrap">
+                                {{if eq .WayToArray 1}} 신년운세 {{else}} 기본 배열 {{end}}
+                            </span>
+                        </div>
+                    </td>
+
+                    <td class="px-4 py-6">
+                        <div class="flex flex-col">
+                            <span class="text-[12px] text-slate-400 mb-0.5 whitespace-nowrap">{{.SelectedCards}} / {{.AmountCards}} Cards</span>
+                            {{if .EncKey}}
+                            <a href="/select-cards/{{.EncKey}}" class="text-[11px] font-mono text-indigo-400 hover:text-indigo-300">
+                                카드선택🫧
+                            </a>
+                            {{else}}
+                            <span class="text-[10px] text-slate-600 italic">No Key</span>
+                            {{end}}
+                        </div>
+                    </td>
+
+                    <td class="px-4 py-6">
+                        <form action="/delete-reservation/{{.Idx}}" method="POST" onsubmit="return confirm('이 운명의 기록을 정말 삭제하시겠습니까?');" class="inline">
+                            <button type="submit" class="p-1.5 text-slate-500 hover:text-red-400 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {{else}}
+                {{end}}
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<style>
+/* 스크롤바가 너무 투박하지 않게 디자인 추가 */
+.custom-scrollbar::-webkit-scrollbar {
+    height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(251, 191, 36, 0.2);
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(251, 191, 36, 0.4);
+}
+</style>
 
 <div class="mt-10 flex items-center justify-between px-2">
     <div class="hidden sm:block">
