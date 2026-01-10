@@ -50,7 +50,7 @@ func main() {
 	e := echo.New()
 
 	// 서버 시작 시 비밀번호 로드
-	adminPassword := loadPassword(".env")
+	adminPassword := loadPassword("password.txt")
 
 	// 정적 파일 설정 (이미지, CSS 등)
 	e.Static("/static", "static")
