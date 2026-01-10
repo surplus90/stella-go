@@ -56,8 +56,19 @@ func main() {
 	e.Static("/static", "static")
 	e.Renderer = &TemplateRenderer{}
 
-	// 1. 세션 설정 (비밀키는 원하는 대로 변경하세요)
-	e.Use(session.Middleware(sessions.NewCookieStore([]byte("stk"))))
+	// 1. 세션 설정
+	store := sessions.NewCookieStore([]byte("stk"))
+
+	// IP 접속 환경을 위한 세션 옵션 추가
+	store.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   3600 * 8, // 8시간 유지
+		HttpOnly: true,     // JS에서 쿠키 접근 방지 (보안)
+		Secure:   false,    // ★ 중요: HTTP(IP접속) 환경이므로 false로 설정
+		SameSite: http.SameSiteLaxMode, // ★ 중요: IP 환경에서 세션 유지를 위해 필요
+	}
+
+	e.Use(session.Middleware(store))
 
 	// 2. 인증 미들웨어
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -88,6 +99,9 @@ func main() {
 
 	e.POST("/login", func(c echo.Context) error {
 		password := c.FormValue("password")
+
+		// 로그 추가: 비밀번호 체크가 되는지 확인
+    	log.Printf("입력된 비번: [%s], 설정된 비번: [%s]", password, adminPassword)
 
 		// 비밀번호 확인 (원하는 비밀번호로 수정하세요)
 		if password == adminPassword {
