@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"log"
 	"net/http"
 	"html/template"
 	"io"
@@ -34,8 +36,21 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
     return tmpl.ExecuteTemplate(w, "layout", data)
 }
 
+// 파일에서 비밀번호를 읽어오는 함수
+func loadPassword(filename string) string {
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		log.Fatalf("비밀번호 파일을 읽을 수 없습니다: %v", err)
+	}
+	// 읽어온 내용의 앞뒤 공백(줄바꿈 등)을 제거하고 반환
+	return strings.TrimSpace(string(content))
+}
+
 func main() {
 	e := echo.New()
+
+	// 서버 시작 시 비밀번호 로드
+	adminPassword := loadPassword(".env")
 
 	// 정적 파일 설정 (이미지, CSS 등)
 	e.Static("/static", "static")
@@ -75,7 +90,7 @@ func main() {
 		password := c.FormValue("password")
 
 		// 비밀번호 확인 (원하는 비밀번호로 수정하세요)
-		if password == "stella119" {
+		if password == adminPassword {
 			sess, _ := session.Get("admin-session", c)
 			sess.Values["authenticated"] = true
 			sess.Save(c.Request(), c.Response())
