@@ -1,0 +1,57 @@
+{{define "content"}}
+<div class="min-h-[70vh] flex flex-col items-center justify-center text-center px-4">
+    
+    <div class="relative mb-12">
+        <div class="absolute inset-0 bg-amber-500/20 blur-[100px] rounded-full"></div>
+        
+        <div class="relative">
+            <span class="text-7xl md:text-8xl block mb-6 animate-pulse">🔮</span>
+            <h1 class="text-5xl md:text-7xl font-mystic text-gold tracking-[0.2em] drop-shadow-2xl">
+                TAROT STELLA
+            </h1>
+            <div class="flex justify-center items-center gap-4 mt-4">
+                <div class="h-px w-12 bg-gradient-to-r from-transparent to-amber-500/50"></div>
+                <p class="text-slate-400 font-mystic tracking-[0.5em] text-xs md:text-sm uppercase">
+                    Your Destiny Awaits
+                </p>
+                <div class="h-px w-12 bg-gradient-to-l from-transparent to-amber-500/50"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-2xl space-y-6 mb-16">
+        <p class="text-slate-300 leading-relaxed text-lg font-light tracking-wide">
+            밤하늘의 별들이 당신의 길을 속삭입니다.<br>
+            <span class="text-amber-200/80">타로 스텔라</span>는 고대의 지혜와 현대의 감각을 연결하여<br>
+            당신의 고민에 대한 신비로운 답을 제시합니다.
+        </p>
+    </div>
+
+    <div class="mt-24 opacity-20">
+        <div class="flex flex-col items-center gap-2">
+            <div class="flex gap-4">
+                <span class="text-xl">✨</span>
+                <span class="text-xl">✦</span>
+                <span class="text-xl">✨</span>
+            </div>
+            <p class="text-[10px] tracking-[0.6em] uppercase">Built with Stellar Wisdom</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 로고가 스르륵 나타나는 애니메이션 */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .font-mystic { animation: fadeInUp 1.5s ease-out; }
+    
+    /* 카드 호버 시 살짝 떠오르는 효과 */
+    .glass-card:hover {
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+    }
+</style>
+{{end}}

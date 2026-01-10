@@ -1,0 +1,148 @@
+{{define "content"}}
+<div class="max-w-4xl mx-auto pb-20">
+    <div class="mb-6 flex items-center justify-between">
+        <a href="/reserve-list" class="text-slate-400 hover:text-amber-400 flex items-center text-sm transition-colors">
+            ← 목록으로 돌아가기
+        </a>
+        <form action="/delete-reservation/{{.Res.Idx}}" method="POST" onsubmit="return confirm('삭제하시겠습니까?');">
+            <button type="submit" class="px-4 py-2 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-sm font-bold hover:bg-red-500/20 transition-colors">삭제</button>
+        </form>
+    </div>
+
+    <div class="glass-card overflow-hidden mb-8 shadow-2xl">
+        <div class="bg-white/5 p-6 border-b border-white/5">
+            <h2 class="text-2xl font-mystic text-gold">{{.Res.UserName}} 님의 상담 정보</h2>
+        </div>
+        <div class="p-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">타로 덱</label>
+                <p class="font-semibold text-slate-200 mt-1">{{.Res.DeckName}}</p>
+            </div>
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">배열법</label>
+                <p class="font-semibold text-slate-200 mt-1">
+                    {{if eq .Res.WayToArray 1}} 신년운세 {{else}} 기본 {{end}}
+                </p>
+            </div>
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">총 카드 수</label>
+                <p class="font-semibold text-amber-400 mt-1">{{.Res.AmountCards}} 장</p>
+            </div>
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">뽑은 카드 수</label>
+                <p class="font-semibold text-amber-400 mt-1">{{.Res.SelectedCards}} 장 중 {{len .DisplayCards}} 장 완료</p>
+            </div>
+            <div class="col-span-2">
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">예약 일시</label>
+                <p class="font-semibold text-slate-200 mt-1">{{.Res.ReservationDate}}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-card mb-8 p-6 border-amber-500/20 shadow-[0_0_20px_rgba(251,191,36,0.05)]">
+        <label class="block text-s font-bold text-amber-500/70 uppercase tracking-[0.2em] mb-3 px-1">
+            고객용 카드 선택 링크
+        </label>
+        
+        <div class="flex flex-col md:flex-row gap-3">
+            <div class="flex-1 relative group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span class="text-slate-500 text-sm">🔗</span>
+                </div>
+                <input type="text" id="shareUrl" readonly 
+                    value="http://localhost:8080/select-cards/{{.Res.EncKey}}"
+                    class="w-full pl-11 pr-4 py-3 bg-black/40 border border-white/10 rounded-xl text-indigo-300 text-sm font-mono outline-none focus:border-amber-500/50 transition-all">
+            </div>
+
+            <button onclick="copyToClipboard()" 
+                class="flex items-center justify-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-slate-200 text-sm font-bold transition-all active:scale-95 group">
+                <span id="copyIcon">📋</span>
+                <span id="copyText">링크 복사</span>
+            </button>
+        </div>
+        <p class="mt-3 text-[11px] text-slate-500 italic px-1 text-center md:text-left">
+            * 이 링크를 고객에게 전달하면 직접 카드를 뽑을 수 있습니다.
+        </p>
+    </div>
+
+    <div class="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+            <h4 class="block text-s font-bold text-amber-500/70 uppercase tracking-[0.2em]">추가 카드 뽑기 요청</h4>
+            <p class="text-slate-400 text-sm">고객에게 추가로 뽑게 할 카드 장수를 입력하세요.</p>
+        </div>
+        <form action="/add-card-count/{{.Res.Idx}}" method="POST" class="flex gap-2 w-full md:w-auto">
+            <input type="number" name="add_count" value="1" min="1" max="10" 
+                class="w-full md:w-20 px-3 py-2 bg-black/20 border border-white/10 rounded-lg focus:ring-2 focus:ring-amber-500/50 text-white outline-none">
+            <button type="submit" class="bg-amber-500 text-slate-900 px-6 py-2 rounded-lg font-bold hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20 whitespace-nowrap">
+                장수 추가
+            </button>
+        </form>
+    </div>
+
+    <div class="glass-card shadow-2xl overflow-hidden border border-white/5">
+        <div class="bg-white/5 p-4 px-6 flex justify-between items-center border-b border-white/5">
+            <h3 class="block text-s font-bold text-amber-500/70 uppercase tracking-[0.2em]">🔮 고객이 선택한 카드 결과</h3>
+            {{if not .DisplayCards}}
+            <span class="bg-slate-700 text-slate-300 text-[10px] px-2 py-1 rounded-md uppercase tracking-wider">대기 중</span>
+            {{else}}
+            <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] px-2 py-1 rounded-md uppercase tracking-wider">선택 완료</span>
+            {{end}}
+        </div>
+
+        <div class="p-8">
+            {{if .DisplayCards}}
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8">
+                {{range .DisplayCards}}
+                <div class="flex flex-col items-center">
+                    <div class="relative w-full aspect-[2/3] mb-4 group">
+                        <div class="absolute -top-2 -left-2 w-6 h-6 bg-amber-500 text-slate-900 text-[10px] font-bold flex items-center justify-center rounded-full z-10 shadow-lg border border-white/20">
+                            {{.Position}}
+                        </div>
+                        <img src="/static{{.ImgPath}}" alt="{{.CardName}}" 
+                            class="w-full h-full object-cover rounded-xl shadow-xl border border-white/10 group-hover:scale-105 group-hover:border-amber-500/30 transition-all duration-300">
+                    </div>
+                    <p class="text-sm font-bold text-amber-100">{{.CardName}}</p>
+                    <p class="text-[9px] text-slate-500 mt-1 uppercase tracking-[0.2em]">Position {{.Position}}</p>
+                </div>
+                {{end}}
+            </div>
+            {{else}}
+            <div class="py-20 text-center">
+                <p class="text-slate-500 italic text-sm tracking-wider">고객이 아직 운명의 카드를 선택하지 않았습니다.</p>
+            </div>
+            {{end}}
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard() {
+    const copyText = document.getElementById("shareUrl");
+    
+    // 텍스트 선택 및 복사
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); // 모바일 대응
+    
+    try {
+        navigator.clipboard.writeText(copyText.value).then(() => {
+            // 복사 성공 시 UI 피드백
+            const btnText = document.getElementById("copyText");
+            const btnIcon = document.getElementById("copyIcon");
+            
+            btnText.innerText = "복사 완료!";
+            btnText.classList.add("text-amber-400");
+            btnIcon.innerText = "✨";
+            
+            // 2초 뒤 원래대로
+            setTimeout(() => {
+                btnText.innerText = "링크 복사";
+                btnText.classList.remove("text-amber-400");
+                btnIcon.innerText = "📋";
+            }, 2000);
+        });
+    } catch (err) {
+        alert("복사에 실패했습니다. 직접 주소를 복사해주세요.");
+    }
+}
+</script>
+{{end}}
