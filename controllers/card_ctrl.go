@@ -4,10 +4,11 @@ import (
 	"math/rand"
 	"net/http"
 	"stella-tarot/database"
+
 	// "stella-tarot/models"
-	"time"
-	"strings"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -17,26 +18,27 @@ func RenderSelectCardsPage(c echo.Context) error {
 
 	// 1. 예약 정보와 덱 정보 JOIN 조회 (DeckIdx 추가)
 	var data struct {
-		Idx           int64
-		UserName      string
-		DisplayCount  int    // 화면에 깔아줄 장수
-		PickCount     int    // 설정된 총 선택 장수 (Reservation.SelectedCards)
-		TotalDeck     int    // 덱 전체 장수
-		EncKey        string
-		DeckIdx       int    // 카드 조회를 위한 덱 번호
+		Idx          int64
+		UserName     string
+		DisplayCount int // 화면에 깔아줄 장수
+		PickCount    int // 설정된 총 선택 장수 (Reservation.SelectedCards)
+		TotalDeck    int // 덱 전체 장수
+		EncKey       string
+		DeckIdx      int // 카드 조회를 위한 덱 번호
+		WayToArray   int
 	}
 
 	query := `
 		SELECT 
 			r.idx, r.user_name, r.amount_cards, r.selected_cards, r.enc_key,
-			d.amount_cards, r.deck_idx
+			d.amount_cards, r.deck_idx, r.way_to_array
 		FROM reservation r
 		JOIN tarot_decks d ON r.deck_idx = d.idx
 		WHERE r.enc_key = ?
 	`
 	err := database.DB.QueryRow(query, encKey).Scan(
 		&data.Idx, &data.UserName, &data.DisplayCount, &data.PickCount, &data.EncKey,
-		&data.TotalDeck, &data.DeckIdx,
+		&data.TotalDeck, &data.DeckIdx, &data.WayToArray,
 	)
 	if err != nil {
 		return c.String(http.StatusNotFound, "예약 정보를 찾을 수 없습니다.")
@@ -67,11 +69,12 @@ func RenderSelectCardsPage(c echo.Context) error {
 		}
 
 		return c.Render(http.StatusOK, "select-cards.html", map[string]interface{}{
-			"HideNav": true,
+			"HideNav":      true,
 			"IsResult":     true, // 템플릿에서 결과 화면임을 판별하는 플래그
 			"UserName":     data.UserName,
 			"DisplayCards": displayCards,
 			"PickCount":    data.PickCount,
+			"WayToArray":   data.WayToArray,
 		})
 	}
 
@@ -109,7 +112,7 @@ func RenderSelectCardsPage(c echo.Context) error {
 	needToPick := data.PickCount - pickedCount
 
 	return c.Render(http.StatusOK, "select-cards.html", map[string]interface{}{
-		"HideNav": true,
+		"HideNav":      true,
 		"IsResult":     false,
 		"Idx":          data.Idx,
 		"UserName":     data.UserName,
