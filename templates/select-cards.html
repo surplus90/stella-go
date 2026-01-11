@@ -1,5 +1,5 @@
 {{define "content"}}
-<div class="max-w-5xl mx-auto text-center px-2 py-10">
+<div class="max-w-5xl mx-auto text-center py-5">
     
     {{if .IsResult}}
     <div class="mb-12">
@@ -12,7 +12,63 @@
         <p class="text-[14px] text-slate-400 mt-2">총 {{.PickCount}}장의 카드가 모두 상담사에게 전달되었습니다.</p>
     </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 mb-12">
+    <div class="p-2 overflow-x-auto custom-scrollbar"> 
+        {{if .DisplayCards}}
+            {{if eq .WayToArray 1}}
+            <div class="relative min-w-[350px] aspect-square mx-auto grid grid-cols-5 gap-1 p-2 items-center justify-items-center">
+                {{range .DisplayCards}}
+                <div class="flex flex-col items-center w-full transition-all duration-500 hover:z-50
+                    {{if eq .Position 13}} col-start-3 row-start-3 scale-110
+                    {{else if eq .Position 10}} col-start-3 row-start-1 {{/* 12시 방향 */}}
+                    {{else if eq .Position 9}} col-start-4 row-start-1 {{/* 1시 */}}
+                    {{else if eq .Position 8}} col-start-5 row-start-2 {{/* 2시 */}}
+                    {{else if eq .Position 7}} col-start-5 row-start-3 {{/* 3시 */}}
+                    {{else if eq .Position 6}} col-start-5 row-start-4 {{/* 4시 */}}
+                    {{else if eq .Position 5}} col-start-4 row-start-5 {{/* 5시 */}}
+                    {{else if eq .Position 4}} col-start-3 row-start-5 {{/* 6시 */}}
+                    {{else if eq .Position 3}} col-start-2 row-start-5 {{/* 7시 */}}
+                    {{else if eq .Position 2}} col-start-1 row-start-4 {{/* 8시 */}}
+                    {{else if eq .Position 1}} col-start-1 row-start-3 {{/* 9시 */}}
+                    {{else if eq .Position 12}} col-start-1 row-start-2 {{/* 10시 */}}
+                    {{else if eq .Position 11}} col-start-2 row-start-1 {{/* 11시 */}}
+                    {{end}}">
+                    
+                    <div class="relative w-full aspect-[2/3] group">
+                        <div class="absolute -top-1 -left-1 w-5 h-5 bg-amber-500 text-slate-900 text-[9px] font-bold flex items-center justify-center rounded-full z-10 shadow-lg border border-white/20">
+                            {{.Position}}
+                        </div>
+                        <img src="/static{{.ImgPath}}" alt="{{.CardName}}" 
+                            class="w-full h-full object-cover rounded-md shadow-2xl border border-white/10 group-hover:scale-150 transition-transform duration-300">
+                    </div>
+                    <p class="text-[8px] font-bold text-amber-100 mt-1 whitespace-nowrap">{{.CardName}}</p>
+                </div>
+                {{end}}
+            </div>
+
+            {{else}} 
+                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1">
+                    {{range .DisplayCards}}
+                    <div class="flex flex-col items-center">
+                        <div class="relative w-full aspect-[2/3] mb-2 group">
+                            <div class="absolute -top-1 -left-1 w-5 h-5 bg-amber-500 text-slate-900 text-[9px] font-bold flex items-center justify-center rounded-full z-10 shadow-lg border border-white/20">
+                                {{.Position}}
+                            </div>
+                            <img src="/static{{.ImgPath}}" alt="{{.CardName}}" 
+                                class="w-full h-full object-cover rounded-lg shadow-xl border border-white/10 group-hover:scale-105 group-hover:border-amber-500/30 transition-all duration-300">
+                        </div>
+                        <p class="text-[11px] font-bold text-amber-100 text-center truncate w-full">{{.CardName}}</p>
+                    </div>
+                    {{end}}
+                </div>
+            {{end}}
+        {{else}}
+            <div class="py-12 text-center">
+                <p class="text-slate-500 italic text-xs tracking-wider">카드를 기다리는 중입니다...</p>
+            </div>
+        {{end}}
+    </div>
+
+    <!-- <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 mb-12">
         {{range .DisplayCards}}
         <div class="flex flex-col items-center group">
             <div class="relative w-full aspect-[2/3] mb-3 shadow-2xl rounded-xl overflow-hidden border-4 border-white/10 transition-transform group-hover:scale-105">
@@ -24,14 +80,14 @@
             <p class="font-bold text-amber-200">{{.CardName}}</p>
         </div>
         {{end}}
-    </div>
+    </div> -->
 
     {{else}}
     <div class="mb-8">
         <h2 class="text-2xl font-bold text-slate-100">반갑습니다.</h2>
         <p class="text-amber-400 font-semibold text-m mt-2">
             {{if gt .AlreadyPick 0}}
-                이미 {{.AlreadyPick}}장을 뽑으셨습니다. 남은 <span class="underline decoration-wavy">{{.PickCount}}장</span>을 추가로 골라주세요.
+                이미 {{.AlreadyPick}}장을 뽑으셨습니다. <br/> 남은 <span class="underline decoration-wavy">{{.PickCount}}장</span>을 추가로 골라주세요.
             {{else}}
                 준비된 카드 중 <span class="underline decoration-wavy">{{.PickCount}}장</span>을 신중하게 골라주세요.
             {{end}}
@@ -43,33 +99,32 @@
         </div> -->
     </div>
 
-    <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3 mb-12">
+    <div class="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-1 mb-4">
         {{range .DisplayCards}}
         <div onclick="selectCard(this, {{.}})" 
-            class="card-item relative aspect-[2/3] rounded-xl shadow-lg cursor-pointer border-2 border-white/10 hover:border-amber-400/50 hover:-translate-y-2 hover:shadow-[0_0_20px_rgba(251,191,36,0.2)] transition-all duration-300 group overflow-hidden">
+            class="card-item relative aspect-[2/3] rounded-lg shadow-md cursor-pointer border border-white/10 hover:border-amber-400/50 hover:-translate-y-1.5 transition-all duration-300 group overflow-hidden">
             
             <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900"></div>
             
             <div class="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity">
-                <span class="absolute top-2 left-2 text-[8px] text-white">✨</span>
-                <span class="absolute bottom-2 right-2 text-[8px] text-white">✨</span>
-                <span class="absolute top-1/4 right-3 text-[6px] text-white">⭐</span>
-                <span class="absolute bottom-1/4 left-3 text-[6px] text-white">⭐</span>
+                <span class="absolute top-1 left-1 text-[6px]">✨</span>
+                <span class="absolute bottom-1 right-1 text-[6px]">✨</span>
+                <span class="absolute top-1/2 right-1 text-[5px]">⭐</span>
             </div>
 
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-1">
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
                 <div class="relative">
-                    <div class="absolute inset-0 bg-amber-400/20 blur-xl rounded-full"></div>
-                    <svg class="relative w-8 h-8 text-amber-300/80 group-hover:text-amber-300 group-hover:scale-110 transition-transform duration-500" fill="currentColor" viewBox="0 0 24 24">
+                    <div class="absolute inset-0 bg-amber-400/10 blur-lg rounded-full"></div>
+                    <svg class="relative w-6 h-6 text-amber-300/70 group-hover:text-amber-300 group-hover:scale-110 transition-transform duration-500" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                     </svg>
                 </div>
-                <span class="text-[8px] text-amber-200/40 font-black tracking-[0.2em] uppercase">Stella</span>
+                <span class="text-[6px] text-amber-200/30 font-black tracking-widest uppercase mt-0.5">Stella</span>
             </div>
 
-            <div class="selected-mark hidden absolute inset-0 bg-amber-500/40 flex items-center justify-center rounded-lg backdrop-blur-[3px] z-20">
-                <div class="bg-white rounded-full p-1 shadow-lg transform scale-110">
-                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="selected-mark hidden absolute inset-0 bg-amber-500/40 flex items-center justify-center backdrop-blur-[2px] z-20">
+                <div class="bg-white rounded-full p-0.5 shadow-lg transform scale-90">
+                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
                     </svg>
                 </div>
