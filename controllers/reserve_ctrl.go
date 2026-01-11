@@ -1,16 +1,16 @@
 package controllers
 
 import (
-	"fmt"
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
+	"math"
 	"net/http"
-	"strconv"
 	"stella-tarot/database" // go.mod의 모듈명 확인 필요
 	"stella-tarot/models"
-	"time"
+	"strconv"
 	"strings"
-	"math"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -18,13 +18,14 @@ import (
 // 화면에 보여주기 위한 확장 구조체
 type ReservationView struct {
 	models.Reservation
-	DeckName       string
-	ReservationDate  string
+	DeckName        string
+	ReservationDate string
 }
 type DisplayCard struct {
 	models.TarotCard
 	Position int // 뽑은 순서 (1번, 2번...)
 }
+
 // 보안 키 생성 함수 (함수 내부에 있거나 별도로 정의되어야 함)
 func generateEncKey() string {
 	b := make([]byte, 8)
@@ -40,6 +41,11 @@ func RenderReservePage(c echo.Context) error {
 	}
 	defer rows.Close()
 
+	// 1. 현재 시간 구하기
+	now := time.Now()
+	defaultTime := now.Add(time.Hour * 1)
+	formattedTime := defaultTime.Format("2006-01-02T15:04")
+
 	var decks []models.TarotDeck
 	for rows.Next() {
 		var d models.TarotDeck
@@ -49,8 +55,9 @@ func RenderReservePage(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "reserve.html", map[string]interface{}{
-		"IsAdmin": true,
-		"Decks": decks,
+		"IsAdmin":     true,
+		"Decks":       decks,
+		"DefaultTime": formattedTime,
 	})
 }
 
@@ -76,7 +83,7 @@ func SaveReservation(c echo.Context) error {
 			user_name, deck_idx, amount_cards, selected_cards, 
 			way_to_array, reservation_at, enc_key, created_at
 		) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-		userName, deckIdx, amountCards, selectedCards, 
+		userName, deckIdx, amountCards, selectedCards,
 		wayToArray, reservationAt, encKey, now,
 	)
 
@@ -90,21 +97,21 @@ func SaveReservation(c echo.Context) error {
 // 3. 예약 목록 화면 랜더링
 func RenderReserveListPage(c echo.Context) error {
 	// 1. 페이지 번호 가져오기 (기본값 1)
-    page, _ := strconv.Atoi(c.QueryParam("page"))
-    if page < 1 {
-        page = 1
-    }
-    pageSize := 20
-    offset := (page - 1) * pageSize
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	if page < 1 {
+		page = 1
+	}
+	pageSize := 20
+	offset := (page - 1) * pageSize
 
-    // 2. 전체 데이터 개수 조회 (페이지네이션 UI용)
-    var totalCount int
-    database.DB.QueryRow("SELECT COUNT(*) FROM reservation").Scan(&totalCount)
-    totalPage := int(math.Ceil(float64(totalCount) / float64(pageSize)))
-	
+	// 2. 전체 데이터 개수 조회 (페이지네이션 UI용)
+	var totalCount int
+	database.DB.QueryRow("SELECT COUNT(*) FROM reservation").Scan(&totalCount)
+	totalPage := int(math.Ceil(float64(totalCount) / float64(pageSize)))
+
 	// 3. 20개씩 끊어서 조회 (LEFT JOIN으로 데이터 누락 방지)
-    // Scan 에러 방지를 위해 COALESCE(null 처리) 추가
-    query := `
+	// Scan 에러 방지를 위해 COALESCE(null 처리) 추가
+	query := `
         SELECT 
 			r.idx, r.user_name, r.amount_cards, r.selected_cards, 
 			r.way_to_array, r.reservation_at, r.enc_key, r.created_at,
@@ -140,7 +147,7 @@ func RenderReserveListPage(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "reserve-list.html", map[string]interface{}{
-		"IsAdmin": true,
+		"IsAdmin":      true,
 		"Reservations": reservations,
 		"CurrentPage":  page,
 		"TotalPage":    totalPage, // totalPage 사용 확인
@@ -186,12 +193,14 @@ func RenderReserveDetailPage(c echo.Context) error {
 	var displayCards []DisplayCard
 	if err == nil && pickedCards != "" {
 		// 여기서 cardIds 변수를 선언합니다! (문자열 "1,5,12" -> ["1", "5", "12"])
-		cardIds := strings.Split(pickedCards, ",") 
-		
+		cardIds := strings.Split(pickedCards, ",")
+
 		for i, idStr := range cardIds {
 			var card DisplayCard
 			idStr = strings.TrimSpace(idStr)
-			if idStr == "" { continue }
+			if idStr == "" {
+				continue
+			}
 
 			// string을 int로 변환
 			seqInt, err := strconv.Atoi(idStr)
@@ -214,8 +223,8 @@ func RenderReserveDetailPage(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "reserve-detail.html", map[string]interface{}{
-		"IsAdmin": true,
-		"Res": rv,
+		"IsAdmin":      true,
+		"Res":          rv,
 		"DisplayCards": displayCards, // 선택된 카드 번호 리스트
 	})
 }
@@ -236,22 +245,22 @@ func DeleteReservation(c echo.Context) error {
 
 // 6. 카드 추가
 func AddCardCount(c echo.Context) error {
-    idx := c.Param("idx")
-    addCountStr := c.FormValue("add_count")
-    
-    // 1. 입력값 숫자로 변환
-    addCount, err := strconv.Atoi(addCountStr)
-    if err != nil || addCount <= 0 {
-        return c.JSON(http.StatusBadRequest, map[string]string{"error": "잘못된 숫자입니다."})
-    }
+	idx := c.Param("idx")
+	addCountStr := c.FormValue("add_count")
 
-    // 2. DB 업데이트: 기존 값에 더하기 (SQL의 + 연산 활용)
-    query := `UPDATE reservation SET selected_cards = selected_cards + ? WHERE idx = ?`
-    _, err = database.DB.Exec(query, addCount, idx)
-    if err != nil {
-        return c.JSON(http.StatusInternalServerError, map[string]string{"error": "업데이트 실패"})
-    }
+	// 1. 입력값 숫자로 변환
+	addCount, err := strconv.Atoi(addCountStr)
+	if err != nil || addCount <= 0 {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "잘못된 숫자입니다."})
+	}
 
-    // 3. 다시 상세 페이지로 리다이렉트
-    return c.Redirect(http.StatusSeeOther, "/reserve-detail/"+idx)
+	// 2. DB 업데이트: 기존 값에 더하기 (SQL의 + 연산 활용)
+	query := `UPDATE reservation SET selected_cards = selected_cards + ? WHERE idx = ?`
+	_, err = database.DB.Exec(query, addCount, idx)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "업데이트 실패"})
+	}
+
+	// 3. 다시 상세 페이지로 리다이렉트
+	return c.Redirect(http.StatusSeeOther, "/reserve-detail/"+idx)
 }

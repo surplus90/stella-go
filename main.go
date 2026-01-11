@@ -100,9 +100,6 @@ func main() {
 	e.POST("/login", func(c echo.Context) error {
 		password := c.FormValue("password")
 
-		// 로그 추가: 비밀번호 체크가 되는지 확인
-    	log.Printf("입력된 비번: [%s], 설정된 비번: [%s]", password, adminPassword)
-
 		// 비밀번호 확인 (원하는 비밀번호로 수정하세요)
 		if password == adminPassword {
 			sess, _ := session.Get("admin-session", c)
