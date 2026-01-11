@@ -79,40 +79,114 @@
         </form>
     </div>
 
-    <div class="glass-card shadow-2xl overflow-hidden border border-white/5">
-        <div class="bg-white/5 p-4 px-6 flex justify-between items-center border-b border-white/5">
-            <h3 class="block text-s font-bold text-amber-500/70 uppercase tracking-[0.2em]">🔮 고객이 선택한 카드 결과</h3>
+    <!-- <div class="glass-card shadow-2xl overflow-hidden border border-white/5">
+        <div class="bg-white/5 p-3 px-5 flex justify-between items-center border-b border-white/5">
+            <h3 class="block text-s font-bold text-amber-500/70 uppercase tracking-[0.2em]">🔮 고객 선택 카드 결과</h3>
             {{if not .DisplayCards}}
-            <span class="bg-slate-700 text-slate-300 text-[10px] px-2 py-1 rounded-md uppercase tracking-wider">대기 중</span>
+            <span class="bg-slate-700 text-slate-300 text-[10px] px-2 py-0.5 rounded-md uppercase tracking-wider">대기 중</span>
             {{else}}
-            <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] px-2 py-1 rounded-md uppercase tracking-wider">선택 완료</span>
+            <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] px-2 py-0.5 rounded-md uppercase tracking-wider">선택 완료</span>
             {{end}}
         </div>
 
-        <div class="p-8">
+        <div class="p-2">
             {{if .DisplayCards}}
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8">
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1">
                 {{range .DisplayCards}}
                 <div class="flex flex-col items-center">
-                    <div class="relative w-full aspect-[2/3] mb-4 group">
-                        <div class="absolute -top-2 -left-2 w-6 h-6 bg-amber-500 text-slate-900 text-[10px] font-bold flex items-center justify-center rounded-full z-10 shadow-lg border border-white/20">
+                    <div class="relative w-full aspect-[2/3] mb-2 group">
+                        <div class="absolute -top-1 -left-1 w-5 h-5 bg-amber-500 text-slate-900 text-[9px] font-bold flex items-center justify-center rounded-full z-10 shadow-lg border border-white/20">
                             {{.Position}}
                         </div>
                         <img src="/static{{.ImgPath}}" alt="{{.CardName}}" 
-                            class="w-full h-full object-cover rounded-xl shadow-xl border border-white/10 group-hover:scale-105 group-hover:border-amber-500/30 transition-all duration-300">
+                            class="w-full h-full object-cover rounded-lg shadow-xl border border-white/10 group-hover:scale-105 group-hover:border-amber-500/30 transition-all duration-300">
                     </div>
-                    <p class="text-sm font-bold text-amber-100">{{.CardName}}</p>
-                    <p class="text-[9px] text-slate-500 mt-1 uppercase tracking-[0.2em]">Position {{.Position}}</p>
+                    <p class="text-[11px] font-bold text-amber-100 text-center truncate w-full">{{.CardName}}</p>
                 </div>
                 {{end}}
             </div>
             {{else}}
-            <div class="py-20 text-center">
-                <p class="text-slate-500 italic text-sm tracking-wider">고객이 아직 운명의 카드를 선택하지 않았습니다.</p>
+            <div class="py-12 text-center">
+                <p class="text-slate-500 italic text-xs tracking-wider">카드를 기다리는 중입니다...</p>
             </div>
             {{end}}
         </div>
+    </div> -->
+
+
+
+
+
+    <div class="glass-card shadow-2xl overflow-hidden border border-white/5">
+        <div class="bg-white/5 p-3 px-5 flex justify-between items-center border-b border-white/5">
+            <h3 class="block text-s font-bold text-amber-500/70 uppercase tracking-[0.2em]">🔮 고객 선택 카드 결과</h3>
+            {{if not .DisplayCards}}
+            <span class="bg-slate-700 text-slate-300 text-[10px] px-2 py-0.5 rounded-md uppercase tracking-wider">대기 중</span>
+            {{else}}
+            <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] px-2 py-0.5 rounded-md uppercase tracking-wider">선택 완료</span>
+            {{end}}
+        </div>
+
+        <div class="p-2 overflow-x-auto custom-scrollbar"> 
+            {{if .DisplayCards}}
+                {{if eq .Res.WayToArray 1}}
+                <div class="relative min-w-[350px] aspect-square mx-auto grid grid-cols-5 gap-1 p-2 items-center justify-items-center">
+                    {{range .DisplayCards}}
+                    <div class="flex flex-col items-center w-full transition-all duration-500 hover:z-50
+                        {{if eq .Position 13}} col-start-3 row-start-3 scale-110
+                        {{else if eq .Position 10}} col-start-3 row-start-1 {{/* 12시 방향 */}}
+                        {{else if eq .Position 9}} col-start-4 row-start-1 {{/* 1시 */}}
+                        {{else if eq .Position 8}} col-start-5 row-start-2 {{/* 2시 */}}
+                        {{else if eq .Position 7}} col-start-5 row-start-3 {{/* 3시 */}}
+                        {{else if eq .Position 6}} col-start-5 row-start-4 {{/* 4시 */}}
+                        {{else if eq .Position 5}} col-start-4 row-start-5 {{/* 5시 */}}
+                        {{else if eq .Position 4}} col-start-3 row-start-5 {{/* 6시 */}}
+                        {{else if eq .Position 3}} col-start-2 row-start-5 {{/* 7시 */}}
+                        {{else if eq .Position 2}} col-start-1 row-start-4 {{/* 8시 */}}
+                        {{else if eq .Position 1}} col-start-1 row-start-3 {{/* 9시 */}}
+                        {{else if eq .Position 12}} col-start-1 row-start-2 {{/* 10시 */}}
+                        {{else if eq .Position 11}} col-start-2 row-start-1 {{/* 11시 */}}
+                        {{end}}">
+                        
+                        <div class="relative w-full aspect-[2/3] group">
+                            <div class="absolute -top-1 -left-1 w-5 h-5 bg-amber-500 text-slate-900 text-[9px] font-bold flex items-center justify-center rounded-full z-10 shadow-lg border border-white/20">
+                                {{.Position}}
+                            </div>
+                            <img src="/static{{.ImgPath}}" alt="{{.CardName}}" 
+                                class="w-full h-full object-cover rounded-md shadow-2xl border border-white/10 group-hover:scale-150 transition-transform duration-300">
+                        </div>
+                        <p class="text-[8px] font-bold text-amber-100 mt-1 whitespace-nowrap">{{.CardName}}</p>
+                    </div>
+                    {{end}}
+                </div>
+
+                {{else}} 
+                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1">
+                        {{range .DisplayCards}}
+                        <div class="flex flex-col items-center">
+                            <div class="relative w-full aspect-[2/3] mb-2 group">
+                                <div class="absolute -top-1 -left-1 w-5 h-5 bg-amber-500 text-slate-900 text-[9px] font-bold flex items-center justify-center rounded-full z-10 shadow-lg border border-white/20">
+                                    {{.Position}}
+                                </div>
+                                <img src="/static{{.ImgPath}}" alt="{{.CardName}}" 
+                                    class="w-full h-full object-cover rounded-lg shadow-xl border border-white/10 group-hover:scale-105 group-hover:border-amber-500/30 transition-all duration-300">
+                            </div>
+                            <p class="text-[11px] font-bold text-amber-100 text-center truncate w-full">{{.CardName}}</p>
+                        </div>
+                        {{end}}
+                    </div>
+                {{end}}
+            {{else}}
+                <div class="py-12 text-center">
+                    <p class="text-slate-500 italic text-xs tracking-wider">카드를 기다리는 중입니다...</p>
+                </div>
+            {{end}}
+        </div>
     </div>
+
+
+
+    
 </div>
 
 <script>

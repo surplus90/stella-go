@@ -1,5 +1,5 @@
 {{define "content"}}
-<div class="max-w-5xl mx-auto text-center px-4 py-10">
+<div class="max-w-5xl mx-auto text-center px-2 py-10">
     
     {{if .IsResult}}
     <div class="mb-12">
@@ -8,8 +8,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
         </div>
-        <h2 class="text-3xl font-bold text-slate-100">카드 선택이 완료되었습니다.</h2>
-        <p class="text-slate-400 mt-2">총 {{.PickCount}}장의 카드가 모두 상담사에게 전달되었습니다.</p>
+        <h2 class="text-xl font-bold text-slate-100">카드 선택이 완료되었습니다.</h2>
+        <p class="text-[14px] text-slate-400 mt-2">총 {{.PickCount}}장의 카드가 모두 상담사에게 전달되었습니다.</p>
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 mb-12">
@@ -28,22 +28,57 @@
 
     {{else}}
     <div class="mb-8">
-        <h2 class="text-3xl font-bold text-slate-100">반갑습니다.</h2>
-        <p class="text-amber-400 font-semibold text-lg mt-2">
+        <h2 class="text-2xl font-bold text-slate-100">반갑습니다.</h2>
+        <p class="text-amber-400 font-semibold text-m mt-2">
             {{if gt .AlreadyPick 0}}
                 이미 {{.AlreadyPick}}장을 뽑으셨습니다. 남은 <span class="underline decoration-wavy">{{.PickCount}}장</span>을 추가로 골라주세요.
             {{else}}
                 준비된 카드 중 <span class="underline decoration-wavy">{{.PickCount}}장</span>을 신중하게 골라주세요.
             {{end}}
         </p>
-        <div class="mt-4 flex justify-center gap-4 text-sm font-medium">
+        <!-- <div class="mt-4 flex justify-center gap-4 text-sm font-medium">
             <span class="text-slate-500">나열된 카드: {{len .DisplayCards}}장</span>
             <span class="text-slate-500">|</span>
             <span class="text-slate-300">현재 선택: <span id="count" class="text-rose-400 font-bold">0</span> / {{.PickCount}}</span>
-        </div>
+        </div> -->
     </div>
 
     <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3 mb-12">
+        {{range .DisplayCards}}
+        <div onclick="selectCard(this, {{.}})" 
+            class="card-item relative aspect-[2/3] rounded-xl shadow-lg cursor-pointer border-2 border-white/10 hover:border-amber-400/50 hover:-translate-y-2 hover:shadow-[0_0_20px_rgba(251,191,36,0.2)] transition-all duration-300 group overflow-hidden">
+            
+            <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900"></div>
+            
+            <div class="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity">
+                <span class="absolute top-2 left-2 text-[8px] text-white">✨</span>
+                <span class="absolute bottom-2 right-2 text-[8px] text-white">✨</span>
+                <span class="absolute top-1/4 right-3 text-[6px] text-white">⭐</span>
+                <span class="absolute bottom-1/4 left-3 text-[6px] text-white">⭐</span>
+            </div>
+
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-1">
+                <div class="relative">
+                    <div class="absolute inset-0 bg-amber-400/20 blur-xl rounded-full"></div>
+                    <svg class="relative w-8 h-8 text-amber-300/80 group-hover:text-amber-300 group-hover:scale-110 transition-transform duration-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                </div>
+                <span class="text-[8px] text-amber-200/40 font-black tracking-[0.2em] uppercase">Stella</span>
+            </div>
+
+            <div class="selected-mark hidden absolute inset-0 bg-amber-500/40 flex items-center justify-center rounded-lg backdrop-blur-[3px] z-20">
+                <div class="bg-white rounded-full p-1 shadow-lg transform scale-110">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        {{end}}
+    </div>
+
+    <!-- <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3 mb-12">
         {{range .DisplayCards}}
         <div onclick="selectCard(this, {{.}})" 
              class="card-item relative aspect-[2/3] bg-slate-800 rounded-lg shadow-lg cursor-pointer border-2 border-white/20 hover:border-amber-500/50 hover:-translate-y-2 transition-all group">
@@ -55,21 +90,43 @@
             </div>
         </div>
         {{end}}
+    </div> -->
+
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md">
+        <div class="glass-card bg-slate-900/80 backdrop-blur-xl border border-white/10 p-4 rounded-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] flex items-center justify-between gap-4">
+            <div class="pl-4 text-left">
+                <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Progress</p>
+                <p class="text-slate-100 text-lg font-black">
+                    <span id="floating-count" class="text-rose-400">0</span> 
+                    <span class="text-slate-500 mx-1">/</span> 
+                    <span class="text-amber-400">{{.PickCount}}</span>
+                </p>
+            </div>
+
+            <form id="submitForm" action="/select-cards/{{.EncKey}}" method="POST" class="flex-1">
+                <input type="hidden" name="reservation_idx" value="{{.Idx}}">
+                <input type="hidden" name="selected_values" id="selectedValues">
+                <button type="button" onclick="submitCards()" id="submitBtn" disabled
+                        class="w-full bg-slate-800 text-slate-500 py-3 rounded-2xl text-sm font-black transition-all cursor-not-allowed border border-white/5 uppercase tracking-tighter">
+                    선택 완료
+                </button>
+            </form>
+        </div>
     </div>
 
-    <form id="submitForm" action="/select-cards/{{.EncKey}}" method="POST">
+    <!-- <form id="submitForm" action="/select-cards/{{.EncKey}}" method="POST">
         <input type="hidden" name="reservation_idx" value="{{.Idx}}">
         <input type="hidden" name="selected_values" id="selectedValues">
         <button type="button" onclick="submitCards()" id="submitBtn" disabled
                 class="bg-slate-700 text-slate-400 px-16 py-4 rounded-full text-xl font-bold shadow-xl transition-all cursor-not-allowed border border-white/5">
             선택 완료
         </button>
-    </form>
+    </form> -->
     {{end}}
 </div>
 
 <script>
-    let selected = [];
+let selected = [];
     const pickLimit = {{.PickCount}}; 
 
     function selectCard(el, cardVal) {
@@ -78,7 +135,7 @@
         if (idx > -1) {
             selected.splice(idx, 1);
             el.querySelector('.selected-mark').classList.add('hidden');
-            el.classList.remove('ring-4', 'ring-amber-500/50');
+            el.classList.remove('ring-4', 'ring-amber-500/50', 'border-amber-500');
         } else {
             if (selected.length >= pickLimit) {
                 alert(`이미 ${pickLimit}장을 모두 선택하셨습니다.`);
@@ -86,24 +143,27 @@
             }
             selected.push(cardVal);
             el.querySelector('.selected-mark').classList.remove('hidden');
-            el.classList.add('ring-4', 'ring-amber-500/50');
+            el.classList.add('ring-4', 'ring-amber-500/50', 'border-amber-500');
         }
 
-        document.getElementById('count').innerText = selected.length;
+        // 카운트 업데이트 (플로팅 바 전용 ID 포함)
+        const countDisplay = document.getElementById('floating-count');
+        countDisplay.innerText = selected.length;
         document.getElementById('selectedValues').value = selected.join(',');
         
         const btn = document.getElementById('submitBtn');
         if (selected.length === pickLimit) {
             btn.disabled = false;
-            // 버튼 활성화 시 색상 변경
-            btn.classList.replace('bg-slate-700', 'bg-gradient-to-r');
-            btn.classList.add('from-amber-600', 'to-amber-500', 'text-slate-900');
-            btn.classList.remove('cursor-not-allowed', 'text-slate-400');
+            btn.classList.replace('bg-slate-800', 'bg-gradient-to-r');
+            btn.classList.add('from-amber-600', 'to-yellow-500', 'text-slate-900', 'shadow-[0_0_20px_rgba(245,158,11,0.3)]');
+            btn.classList.remove('cursor-not-allowed', 'text-slate-500');
+            // 애니메이션 효과
+            btn.classList.add('animate-pulse');
         } else {
             btn.disabled = true;
-            btn.classList.replace('bg-gradient-to-r', 'bg-slate-700');
-            btn.classList.remove('from-amber-600', 'to-amber-500', 'text-slate-900');
-            btn.classList.add('cursor-not-allowed', 'text-slate-400');
+            btn.classList.replace('bg-gradient-to-r', 'bg-slate-800');
+            btn.classList.remove('from-amber-600', 'to-yellow-500', 'text-slate-900', 'shadow-[0_0_20px_rgba(245,158,11,0.3)]', 'animate-pulse');
+            btn.classList.add('cursor-not-allowed', 'text-slate-500');
         }
     }
 
@@ -118,6 +178,14 @@
 <style>
     .card-item {
         background: linear-gradient(145deg, #1e293b, #0f172a);
+    }
+    /* 카드 뒷면 미세한 노이즈 패턴 (신비로움 추가) */
+    .card-item::before {
+        content: "";
+        absolute: inset-0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3 Eben%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        opacity: 0.05;
+        pointer-events: none;
     }
 </style>
 {{end}}
